@@ -62,10 +62,22 @@ function recordingHandlers(calls: string[]): MainHandlers {
       calls.push(`commit:${argv.join(",")}`)
       return Promise.resolve(0)
     },
+    init: (argv) => {
+      calls.push(`init:${argv.join(",")}`)
+      return Promise.resolve(0)
+    },
   }
 }
 
 describe("runMain", () => {
+  it("routes `init`", async () => {
+    const calls: string[] = []
+    const { io } = captureIo()
+    const code = await runMain(["init"], io, recordingHandlers(calls))
+    expect(code).toBe(0)
+    expect(calls).toEqual(["init:"])
+  })
+
   it("routes `board` to the board CLI with the remaining arguments", async () => {
     const calls: string[] = []
     const { io } = captureIo()

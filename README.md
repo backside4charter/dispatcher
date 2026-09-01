@@ -25,12 +25,37 @@ One binary carries every command:
 
 ## Install
 
-Download the binary for your platform from
-[Releases](https://github.com/backside4charter/dispatcher/releases), put it on
-your PATH as `dispatcher` (or invoke it by path), and run `dispatcher help`.
+One line per platform:
 
-Targets: `windows-x64`, `linux-x64`, `linux-arm64`, `darwin-x64`,
-`darwin-arm64`.
+```powershell
+# Windows
+powershell -ExecutionPolicy Bypass -c "irm https://raw.githubusercontent.com/backside4charter/dispatcher/main/install.ps1 | iex"
+```
+
+```sh
+# macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/backside4charter/dispatcher/main/install.sh | sh
+```
+
+That downloads the latest release binary (pin one with
+`DISPATCHER_VERSION=x.y.z`) and puts it on your PATH. Then, inside your
+repository:
+
+```sh
+dispatcher init
+```
+
+`init` is the interactive setup wizard: it creates `dispatcher.config.json`
+(with your Linear API key present, teams, projects and workflow states are
+pickers rather than UUID entry, and the state-to-role mapping is guessed and
+confirmable), enables the Claude Code plugin in `.claude/settings.json`, and
+ends with a checklist of any credentials or tools still missing. Every step
+is idempotent - existing files are kept, not overwritten.
+
+Prefer manual installation? Download a binary from
+[Releases](https://github.com/backside4charter/dispatcher/releases)
+(targets: `windows-x64`, `linux-x64`, `linux-arm64`, `darwin-x64`,
+`darwin-arm64`) and run `dispatcher help`.
 
 ## Configure
 
@@ -38,7 +63,7 @@ The dispatcher is driven by a committed `dispatcher.config.json` at the
 repository root - it is also the marker the binary locates the repository by.
 It names the board platform and project, what the board calls each workflow
 state, the repository pull requests land in, and (optionally) the two agent
-GitHub Apps and the event-listener port. See
+GitHub Apps and the event-listener port. `dispatcher init` scaffolds it; see
 [src/board/config.ts](src/board/config.ts) for the full schema and
 [src/testing/board-fixtures.ts](src/testing/board-fixtures.ts) for a complete
 example naming both platforms.

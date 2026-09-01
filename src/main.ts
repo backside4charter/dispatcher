@@ -19,6 +19,7 @@ import { runCliFromProcess } from "./cli"
 import { runCommitCli } from "./github/commit"
 import { runPrCli } from "./github/pr"
 import { runIdentityFromProcess, runTokenFromProcess } from "./github/token"
+import { runInitFromProcess } from "./init/init-cli"
 import { runReviewStatusSyncFromProcess } from "./review-status-sync-cli"
 import { runWorktreePruneCli } from "./worktree-prune-cli"
 
@@ -46,6 +47,8 @@ export interface MainHandlers {
   pr: (argv: string[]) => Promise<number>
   /** Commit staged changes as the developer bot. */
   commit: (argv: string[]) => Promise<number>
+  /** The interactive per-repository setup wizard. */
+  init: (argv: string[]) => Promise<number>
 }
 
 const USAGE_LINES = [
@@ -67,6 +70,8 @@ const USAGE_LINES = [
   "                            open a pull request authored by the developer app",
   "  commit (-m <msg> | -F <file>)",
   "                            commit staged changes as the developer bot",
+  "  init                      interactive setup: create dispatcher.config.json, enable the",
+  "                            Claude Code plugin, and check credentials (run in your repo)",
   "  version                   print the version",
 ]
 
@@ -86,6 +91,7 @@ const PRODUCTION_HANDLERS: MainHandlers = {
   identity: (argv) => runIdentityFromProcess(argv),
   pr: (argv) => runPrCli(argv, processIo),
   commit: (argv) => Promise.resolve(runCommitCli(argv, processIo)),
+  init: () => runInitFromProcess(processIo),
 }
 
 /**
@@ -119,6 +125,8 @@ export async function runMain(
       return handlers.pr(rest)
     case "commit":
       return handlers.commit(rest)
+    case "init":
+      return handlers.init(rest)
     case "version":
     case "--version":
     case "-v":
