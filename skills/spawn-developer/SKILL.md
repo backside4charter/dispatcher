@@ -72,7 +72,7 @@ dispatcher board claim <REF> dev
 dispatcher board state <REF> in-progress
 ```
 
-**6. Spawn** with the Agent tool: `subagent_type: developer`, `isolation: "worktree"`, `run_in_background: true`.
+**6. Spawn** with the Agent tool: `subagent_type: dispatcher:developer` (the type may also appear as plain `developer` - use whichever your Agent tool lists), `isolation: "worktree"`, `run_in_background: true`.
 
 ## B. Prompt must-haves
 

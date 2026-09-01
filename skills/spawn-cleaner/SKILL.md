@@ -49,7 +49,7 @@ dispatcher board claim <REF> cleanup
 dispatcher board state <REF> in-progress
 ```
 
-**6. Spawn** with the Agent tool: `subagent_type: cleaner`, `isolation: "worktree"`, `run_in_background: true`.
+**6. Spawn** with the Agent tool: `subagent_type: dispatcher:cleaner` (the type may also appear as plain `cleaner` - use whichever your Agent tool lists), `isolation: "worktree"`, `run_in_background: true`.
 
 ## B. Prompt must-haves
 

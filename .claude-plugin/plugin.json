@@ -1,7 +1,7 @@
 {
   "name": "dispatcher",
   "description": "The autonomous backlog dispatcher: start/stop the loop over the project's task board and spawn its developer, reviewer and cleaner workers. Pairs with the dispatcher binary and a dispatcher.config.json at the repository root.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": {
     "name": "Backside4Charter"
   },

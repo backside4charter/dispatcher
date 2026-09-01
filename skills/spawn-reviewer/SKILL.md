@@ -26,7 +26,7 @@ Board access is `dispatcher board <command>` (the project may wrap the binary - 
 dispatcher board claim <REF> review
 ```
 
-Agent tool: `subagent_type: reviewer`, `run_in_background: true`. **No worktree** - it must not get one.
+Agent tool: `subagent_type: dispatcher:reviewer` (the type may also appear as plain `reviewer` - use whichever your Agent tool lists), `run_in_background: true`. **No worktree** - it must not get one.
 
 ## B. Writing a review prompt that earns its cost
 

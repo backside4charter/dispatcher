@@ -353,8 +353,8 @@ dispatcher board state <REF> in-progress
 
 Claiming sets the delegate as well, so a `dev` claim also hands the row to the developer agent and a `review` claim to the reviewer.
 
-- **Developer:** state -> In Progress. Agent tool, `subagent_type: developer`, `run_in_background: true`, **`isolation: "worktree"`**, with the developer prompt template from `dispatcher:spawn-developer` filled in.
-- **Reviewer:** state stays **In Progress** - it was already there, and review is a delegate, not a state. Agent tool, `subagent_type: reviewer`, `run_in_background: true`, **no worktree** (it must not have one; it reads the PR through `gh` and read-only git), with the reviewer prompt template from `dispatcher:spawn-reviewer` filled in.
+- **Developer:** state -> In Progress. Agent tool, `subagent_type: dispatcher:developer` (the type may also appear as plain `developer` - use whichever your Agent tool lists), `run_in_background: true`, **`isolation: "worktree"`**, with the developer prompt template from `dispatcher:spawn-developer` filled in.
+- **Reviewer:** state stays **In Progress** - it was already there, and review is a delegate, not a state. Agent tool, `subagent_type: dispatcher:reviewer`, `run_in_background: true`, **no worktree** (it must not have one; it reads the PR through `gh` and read-only git), with the reviewer prompt template from `dispatcher:spawn-reviewer` filled in.
 
 If a worker agent type is not available in this session, do NOT silently fall back to `general-purpose` - it would inherit the dispatcher's weak model and, for review, its write tools. Tell the user to restart the session instead.
 
