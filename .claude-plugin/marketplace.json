@@ -1,0 +1,13 @@
+{
+  "name": "dispatcher",
+  "owner": {
+    "name": "Backside4Charter"
+  },
+  "plugins": [
+    {
+      "name": "dispatcher",
+      "source": "./",
+      "description": "The autonomous backlog dispatcher: start/stop the loop over the project's task board and spawn its developer, reviewer and cleaner workers."
+    }
+  ]
+}
