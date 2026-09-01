@@ -1,0 +1,42 @@
+# Compiles the CLI for every supported platform and publishes the binaries as
+# a GitHub Release. Fires on a `v*` tag push; the tag must match package.json.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: '.bun-version'
+
+      - run: bun install --frozen-lockfile
+
+      - name: Verify the tag matches package.json
+        run: |
+          version="$(node -e "console.log(require('./package.json').version)")"
+          if [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
+            echo "::error::tag ${GITHUB_REF_NAME} does not match package.json version ${version}"
+            exit 1
+          fi
+
+      - run: bun run tsc --noEmit
+
+      - run: bun run vitest run --coverage
+
+      - name: Compile all targets
+        run: bun run tsx scripts/compile.ts all
+
+      - name: Create the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" dist/* --title "${GITHUB_REF_NAME}" --generate-notes

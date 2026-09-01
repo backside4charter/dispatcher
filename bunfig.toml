@@ -1,0 +1,4 @@
+[install]
+# Every dependency version is written exact - upgrades are deliberate,
+# reviewable acts, never a side effect of a reinstall.
+exact = true

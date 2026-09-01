@@ -1,0 +1,14 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+# cross-compile runtime cache: `bun build --compile --target=<other-os>`
+# downloads the target Bun runtime here, relative to the build's cwd
+.bun-cache/
+
+# test reports
+coverage/
+
+# incremental typecheck state
+*.tsbuildinfo
