@@ -34,7 +34,7 @@ fi
 mkdir -p "$install_dir"
 target="$install_dir/dispatcher"
 echo "downloading $url"
-curl -fSL --progress-bar -o "$target" "$url"
+curl -fSL --retry 3 --retry-delay 2 --progress-bar -o "$target" "$url"
 chmod +x "$target"
 echo "installed $("$target" version) -> $target"
 
