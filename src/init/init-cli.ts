@@ -242,9 +242,38 @@ export async function runInitCli(deps: InitDeps, io: GithubCliIo): Promise<numbe
       io.err("init cancelled - nothing was written beyond what was already reported")
       return 1
     }
+    if (error instanceof InitNeedsTerminalError) {
+      io.err("dispatcher init needs to ask questions to build dispatcher.config.json - run it in an interactive terminal")
+      return 1
+    }
     throw error
   } finally {
     deps.prompter.close()
+  }
+}
+
+/** Thrown when a prompt is needed but stdin is not an interactive terminal. */
+export class InitNeedsTerminalError extends Error {
+  constructor() {
+    super("init needs a terminal")
+    this.name = "InitNeedsTerminalError"
+  }
+}
+
+/**
+ * A prompter for non-interactive stdin: every prompt fails loudly. The
+ * idempotent paths (config exists, settings already wired, checklist) never
+ * prompt, so `dispatcher init` doubles as a scriptable verifier - only a run
+ * that actually has questions to ask demands a terminal.
+ */
+function failingPrompter(): Prompter {
+  const fail = (): never => { throw new InitNeedsTerminalError() }
+  return {
+    ask: () => Promise.resolve(fail()),
+    choose: () => Promise.resolve(fail()),
+    confirm: () => Promise.resolve(fail()),
+    note: () => {},
+    close: () => {},
   }
 }
 
@@ -252,14 +281,10 @@ export async function runInitCli(deps: InitDeps, io: GithubCliIo): Promise<numbe
  * `init`: run the wizard against the real terminal, repository and Linear API.
  */
 export async function runInitFromProcess(io: GithubCliIo): Promise<number> {
-  if (!process.stdin.isTTY) {
-    io.err("dispatcher init is interactive - run it in a terminal")
-    return 1
-  }
   const root = defaultProbe("git", ["rev-parse", "--show-toplevel"])
   const repoRoot = root.ok ? root.stdout.trim() : process.cwd()
   return runInitCli({
-    prompter: createClackPrompter(),
+    prompter: process.stdin.isTTY ? createClackPrompter() : failingPrompter(),
     repoRoot,
     probe: defaultProbe,
     env: process.env,

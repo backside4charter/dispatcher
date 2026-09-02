@@ -4,7 +4,7 @@ import path from "node:path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { parseDispatcherConfig } from "../board/config"
 import type { LinearGraphql } from "../board/linear/client"
-import { runInitCli } from "./init-cli"
+import { InitNeedsTerminalError, runInitCli } from "./init-cli"
 import type { InitDeps } from "./init-cli"
 import type { Choice, Prompter } from "./prompter"
 
@@ -189,6 +189,30 @@ describe("runInitCli", () => {
     const second = capture()
     expect(await runInitCli(deps(scriptedPrompter({})), second.io)).toBe(0)
     expect(second.out.join("\n")).toContain("already enabled")
+  })
+
+  it("runs the no-op path without prompting, so non-interactive stdin still verifies", async () => {
+    // A prompter that fails like the non-TTY one: if any prompt fires on the
+    // idempotent path, this test catches it.
+    const failing: Prompter = {
+      ask: () => Promise.reject(new InitNeedsTerminalError()),
+      choose: () => Promise.reject(new InitNeedsTerminalError()),
+      confirm: () => Promise.reject(new InitNeedsTerminalError()),
+      note: () => {},
+      close: () => {},
+    }
+    // First a run that needs prompts: it must fail cleanly, not hang or throw raw.
+    const blocked = capture()
+    expect(await runInitCli(deps(failing), blocked.io)).toBe(1)
+    expect(blocked.err.join("\n")).toContain("interactive terminal")
+
+    // With the config in place, the same prompter sails through.
+    const first = capture()
+    expect(await runInitCli(deps(scriptedPrompter({})), first.io)).toBe(0)
+    const second = capture()
+    expect(await runInitCli(deps(failing), second.io)).toBe(0)
+    expect(second.out.join("\n")).toContain("already exists")
+    expect(second.out.join("\n")).toContain("checklist:")
   })
 
   it("builds a manual Linear config when no API key is available", async () => {
