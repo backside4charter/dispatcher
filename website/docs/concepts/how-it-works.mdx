@@ -1,0 +1,233 @@
+---
+title: How it works
+description: The whole idea in three minutes - one dispatcher session, three kinds of worker, and the two jobs you keep.
+hide_table_of_contents: true
+---
+
+import { Diagram, Stage } from '@site/src/components/Diagram'
+import { howItWorks } from '@site/src/diagrams/how-it-works'
+import { agentsAtWork } from '@site/src/diagrams/agents-at-work'
+
+# How it works
+
+<p className="lede">
+You keep a task board in Linear. The dispatcher is a Claude Code session you
+start with <code>/dispatcher:start &lt;milestone&gt;</code>. It works that board
+for you, moving each card from Ready to Human Review with agents doing the
+work in between. You decide what is ready, and you merge. Everything in the
+middle is the loop's.
+</p>
+
+<Diagram flow={howItWorks} caption="The board's columns in its own colours. Solid arrows are the main flow; dashed arrows are the two detours.">
+  <Stage id="backlog" title="Backlog" k="you decide">
+
+Your holding area. Nothing here is touched by the dispatcher, whatever else is
+true about the task. Move a task to Ready when you want it built.
+
+[The board →](the-board.md)
+
+  </Stage>
+  <Stage id="ready" title="Ready" k="you decide">
+
+Agent-workable and never worked: it gets a fresh branch. The dispatcher takes
+the topmost Ready task in the milestones you named, so board order is the
+priority. A `Confirm with user` label or an open blocker keeps it waiting.
+
+[What makes a task eligible →](../in-depth/board-model.md#eligibility)
+
+  </Stage>
+  <Stage id="in-progress" title="In Progress" k="agents · build, then review">
+
+The dispatcher claims the task and spawns a developer agent in its own git
+worktree. It lands the task as one branch and one pull request, ticking the
+issue's checkbox list as pieces land and committing as the developer GitHub
+App. Once the PR is verified on GitHub (CI green, every box ticked), a
+read-only reviewer agent hunts for flaws and posts line-anchored findings on
+the PR as the reviewer app: PASS moves the task to Human Review,
+CHANGES_REQUESTED sends it back, QUESTION parks it. There is no cap on rounds.
+
+[Workers →](../in-depth/workers.md)
+
+  </Stage>
+  <Stage id="human-review" title="Human Review" k="your review">
+
+The agents are done and the PR is yours to read. Merge it, or request changes
+on the PR: the review sync moves the task back to Changes Requested within
+seconds, and your review goes verbatim into the next developer's prompt.
+
+[Review sync →](../setup/review-sync.md)
+
+  </Stage>
+  <Stage id="done" title="Done" k="your merge">
+
+Your merge completes the task through Linear's GitHub integration. No agent
+merges or writes Done; the board CLI refuses to. The PR is linked by its branch
+name and `Fixes` line, so the merge lands on the right issue.
+
+[The GitHub integration →](../setup/linear.md#6-the-github-integration)
+
+  </Stage>
+  <Stage id="changes-requested" title="Changes Requested" k="detour · sent back">
+
+Rework, not a restart: the task keeps its open PR and review threads. The next
+developer adds commits to the same branch, addresses every blocking finding,
+and replies on each thread. Changes Requested outranks Ready, so it is normally
+dispatched next.
+
+[Rework →](../in-depth/lifecycle.md#rework-goes-to-changes-requested-never-back-to-ready)
+
+  </Stage>
+  <Stage id="question" title="Question" k="detour · waiting on you">
+
+A worker met a decision only you can make and stopped rather than guess. The
+question is a comment on the issue, repeated in the dispatcher's status text
+until you answer. Reply on the issue and move the task to Ready (no PR yet) or
+Changes Requested (a PR exists); the next worker gets your answer verbatim.
+
+[Questions →](../in-depth/lifecycle.md#questions)
+
+  </Stage>
+</Diagram>
+
+A card moves left to right across the board. You put it in `Ready`. The
+dispatcher hands it to a developer agent and then to a reviewer agent, both
+while it sits in `In Progress`. When the review passes, the card lands in
+`Human Review`, and your merge moves it to `Done`. Two detours: a review that
+finds problems, or a change request from you, sends the card back to `Changes
+Requested`, where it goes to the front of the queue; a worker that hits a
+decision only you can make parks the card in `Question` until you answer.
+
+## Inside In Progress
+
+While a card sits in In Progress, the work passes between the dispatcher
+session and the agents. Every task takes the solid path once, top to bottom;
+the dashed arrows are the returns.
+
+<Diagram flow={agentsAtWork} caption="Each step names who does it. Solid arrows are the round every task takes; dashed arrows are the returns.">
+  <Stage id="claim" title="Claim and spawn" k="dispatcher">
+
+Every round the dispatcher polls the milestones you named, takes the topmost
+eligible task, claims it (Linear's delegate plus a heartbeat comment naming
+this session) and spawns a developer with a prompt built from the issue. Up to
+two developers and two reviewers run at once.
+
+[The dispatcher loop →](../in-depth/dispatcher-loop.md)
+
+  </Stage>
+  <Stage id="build" title="Build one PR" k="developer agent">
+
+In its own git worktree the developer cuts `task/<id>-<slug>`, works the
+issue's checkbox list, commits as the developer GitHub App and opens the PR
+with a `Fixes <id>` line. A task that was sent back resumes its existing PR
+instead of opening a new one. A decision it cannot make parks the task as a
+Question.
+
+[The developer →](../in-depth/workers.md#developer)
+
+  </Stage>
+  <Stage id="verify" title="Verify, don't trust" k="dispatcher">
+
+The PR exists and targets `main`, its author is the developer app, CI is
+green, every checkbox is ticked, and the PR is linked to the issue. A report
+that fails this gets one retry carrying the failure context; a second failure
+is flagged to you and the task is left alone.
+
+[Routing a developer's result →](../in-depth/dispatcher-loop.md#routing-a-developers-result)
+
+  </Stage>
+  <Stage id="review" title="Review the PR" k="reviewer agent">
+
+The dispatcher hands the task over and spawns a read-only reviewer. It reads
+the PR through `gh`, hunts for real flaws, and posts one comment-only review
+as the reviewer app, each finding anchored to its line. PASS moves the task
+to Human Review, unless a change request of your own is still unaddressed.
+CHANGES_REQUESTED sends it back to a developer with the PR left open.
+QUESTION parks it. There is no cap on rounds.
+
+[The reviewer →](../in-depth/workers.md#reviewer)
+
+  </Stage>
+  <Stage id="human-review" title="Human Review" k="you">
+
+The task carries no delegate now; the PR is yours. Merge it, or request
+changes on it and the review sync sends the task back within seconds. Before
+any write the dispatcher re-checks the PR: if you merged in the meantime,
+nothing is written.
+
+[Review sync →](../setup/review-sync.md)
+
+  </Stage>
+  <Stage id="clean" title="Resolve conflicts" k="cleaner agent">
+
+While a PR waits for you, each merge you make leaves it behind `main`. The
+dispatcher merges `main` into waiting bot-authored PRs (never by rebase or
+force-push); one that conflicts goes to the single cleaner, which merges
+`main` into the branch keeping both sides, regenerates lockfiles rather than
+hand-merging them, proves nothing was lost, and pushes. A hand-resolved merge
+earns a merge-scoped re-review first.
+
+[The cleaner →](../in-depth/workers.md#cleaner)
+
+  </Stage>
+</Diagram>
+
+## Three kinds of worker
+
+| Worker | Takes | Leaves behind |
+| --- | --- | --- |
+| developer | a task that is `Ready` or sent back with `Changes Requested` | one branch and one pull request, tests green |
+| reviewer | a finished pull request | line-anchored findings on the PR and a pass or send-back verdict; it never edits code |
+| cleaner | an open PR that no longer merges cleanly with `main` | the same PR, conflicts resolved, nothing lost |
+
+Up to two developers, two reviewers and one cleaner run at once, each in a
+fresh context with its own git worktree (the reviewer needs none).
+
+## What the loop does, every round
+
+1. Polls the board for the milestones you named.
+2. Claims the next eligible task so no other session takes it.
+3. Spawns a worker with a prompt built from the issue.
+4. When the worker reports, checks the result on GitHub rather than taking
+   the worker's word: the PR exists, CI is green, every checkbox is ticked.
+5. Moves the task on (to review, to you, or back to the developer) and tells
+   you what happened in one line of status text.
+
+Between rounds it keeps open PRs up to date with `main`, sends the cleaner at
+any that conflict, checks the whole project for tasks a dead session left
+behind, and removes finished worktrees.
+
+## What stays yours
+
+- Deciding what is ready: moving a task from `Backlog` to `Ready`.
+- Priority: the board's manual order is the only ranking.
+- Answering questions a worker could not decide alone.
+- Reviewing and merging. Your merge is what marks a task `Done`.
+- Anything you want to build yourself: assign yourself in Linear with no
+  agent, and the dispatcher leaves that task alone ([how](the-board.md#taking-a-task-yourself)).
+
+You can stop the loop at any time with `/dispatcher:stop`. Everything that
+matters is on the board and on GitHub, so the next start picks up exactly
+where this one left off.
+
+## Why you can trust it unattended
+
+- **Two GitHub identities.** Agent commits and PRs are made by a developer
+  GitHub App and reviews by a separate reviewer app. GitHub therefore lets you
+  approve every PR, and no agent can approve anything.
+- **Verify, not trust.** A worker's report is checked against GitHub before
+  the board moves.
+- **Nothing hidden in the session.** Claims, states and PRs are all visible
+  on the board and in the repository; two dispatcher sessions can even share
+  one board.
+
+## The supporting pieces
+
+- **Event channel** (optional): `dispatcher listen` lets board and PR changes
+  wake the loop within seconds instead of at its next timer.
+- **Review sync** (CI): when you request changes on a PR, a small GitHub
+  Actions job sends the task back to `Changes Requested` immediately.
+- **Config**: one committed `dispatcher.config.json` names your board, your
+  state names and the agent identities. `dispatcher init` writes it.
+
+Next: [The board](the-board.md). For the full mechanics, see
+[In depth](../in-depth/dispatcher-loop.md).

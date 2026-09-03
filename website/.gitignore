@@ -1,0 +1,7 @@
+# Docusaurus build output and generated route cache
+build/
+.docusaurus/
+.cache-loader/
+
+# dependencies
+node_modules/

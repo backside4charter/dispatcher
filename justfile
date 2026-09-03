@@ -34,3 +34,11 @@ run *args:
 # works from any host - bun downloads the target runtime.
 compile *targets:
   bun run tsx scripts/compile.ts {{targets}}
+
+# Serve the documentation site locally (website/, Docusaurus) with live reload.
+docs:
+  cd website && bun install && bun run start
+
+# Build the documentation site into website/build, exactly as the Pages workflow does.
+docs-build:
+  cd website && bun install --frozen-lockfile && bun run typecheck && bun run build

@@ -1,0 +1,4 @@
+[install]
+# Same rule as the binary's package: every version is written exact, so an
+# upgrade of the documentation toolchain is a deliberate, reviewable edit.
+exact = true

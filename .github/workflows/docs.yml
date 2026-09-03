@@ -1,0 +1,62 @@
+# Builds the documentation site (website/, Docusaurus) and publishes it to
+# GitHub Pages. The build runs on every pull request that touches the site so
+# a broken link fails the check; the deploy runs only on pushes to main.
+#
+# One-time repository setting: Settings > Pages > Build and deployment >
+# Source = "GitHub Actions".
+name: Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'website/**'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    paths:
+      - 'website/**'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: '.bun-version'
+
+      - run: bun install --frozen-lockfile
+        working-directory: website
+
+      - run: bun run typecheck
+        working-directory: website
+
+      - run: bun run build
+        working-directory: website
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: website/build
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

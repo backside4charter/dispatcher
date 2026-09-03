@@ -12,3 +12,7 @@ coverage/
 
 # incremental typecheck state
 *.tsbuildinfo
+
+# documentation site build output (website/ has its own node_modules and lockfile)
+website/build/
+website/.docusaurus/

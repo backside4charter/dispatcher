@@ -120,6 +120,15 @@ Classes and modules include a summary of features. Single-line `/** ... */`
 is acceptable for interface properties and type fields. Inline comments
 state constraints the code can't show - not what the next line does.
 
+## Documentation
+
+The documentation site is a Docusaurus project under `website/`, published
+to GitHub Pages by `.github/workflows/docs.yml`. It has its own
+`package.json` and lockfile so the binary's dependency tree stays small.
+When a command, config field, workflow rule or skill changes, update the
+matching page under `website/docs/` in the same change; `just docs-build`
+must pass (it fails on broken links).
+
 ## Writing Style
 
 - **Never use emdashes (—).** Use a regular hyphen (-), or commas, periods,
