@@ -37,6 +37,18 @@ flowchart LR
 
 ## Install and use
 
+The quickest route is to hand the setup to your AI: open Claude Code in the
+repository your pull requests land in and tell it
+
+```
+Set up the dispatcher in this repository by following
+https://backside4charter.github.io/dispatcher/ai/setup
+```
+
+It installs the binary, discovers your Linear team, project and states,
+writes the config, enables the plugin, and asks you for the few things only
+you can provide. By hand, the steps are:
+
 1. **Install the binary** (one line per platform; pin a release with
    `DISPATCHER_VERSION=x.y.z`):
 
@@ -253,9 +265,9 @@ agent can never satisfy a required-approval rule.
    `**[cleaner]**` or `**[dispatcher]**` on their first line.
 
 The [Linear setup guide](https://backside4charter.github.io/dispatcher/setup/linear)
-walks through each of these step by step, and the
-[GitHub Projects guide](https://backside4charter.github.io/dispatcher/setup/github-projects)
-covers the alternative backend.
+walks through each of these step by step; the alternative GitHub Projects
+backend is described in the
+[System breakdown](https://backside4charter.github.io/dispatcher/ai/system#github-projects-v2-backend).
 
 ## Configure
 
@@ -263,7 +275,7 @@ covers the alternative backend.
 marker the binary locates the repository by. It names the platform, the
 project, what the team calls each state and label, the repository PRs land in,
 the two agent identities on each side, and optionally the listener port. See
-the [config reference](https://backside4charter.github.io/dispatcher/reference/config)
+the [configuration section of the System breakdown](https://backside4charter.github.io/dispatcher/ai/system#configuration)
 for every field, or [src/testing/board-fixtures.ts](src/testing/board-fixtures.ts)
 for a complete fictional example.
 

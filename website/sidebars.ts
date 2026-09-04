@@ -1,10 +1,10 @@
 import type { SidebarsConfig } from "@docusaurus/plugin-content-docs"
 
 /**
- * The one sidebar, in reading order: a two-page understanding first, then
- * doing (getting started, setup), then looking things up (reference), and
- * last the full mechanics for anyone who wants them. Ids are file paths under
- * `docs/` without the extension.
+ * The one sidebar, in reading order: a two-page understanding, then getting
+ * started (the AI-assisted route first, the manual route as an Advanced
+ * category at the end), then the two pages written for AI agents. Ids are
+ * file paths under `docs/` without the extension.
  */
 const sidebars: SidebarsConfig = {
   docs: [
@@ -13,61 +13,36 @@ const sidebars: SidebarsConfig = {
       type: "category",
       label: "Concepts",
       collapsed: false,
-      items: [
-        "concepts/how-it-works",
-        "concepts/the-board",
-      ],
+      items: ["concepts/how-it-works", "concepts/the-board"],
     },
     {
       type: "category",
       label: "Getting started",
       collapsed: false,
       items: [
-        "getting-started/install",
-        "getting-started/init",
+        "getting-started/get-started",
         "getting-started/first-run",
+        {
+          type: "category",
+          label: "Advanced: manual setup",
+          collapsed: true,
+          items: [
+            "getting-started/install",
+            "getting-started/init",
+            "setup/linear",
+            "setup/github-apps",
+            "setup/review-sync",
+            "setup/event-channel",
+          ],
+        },
       ],
     },
     {
       type: "category",
-      label: "Setup guides",
+      label: "For AI agents",
       collapsed: false,
-      items: [
-        "setup/linear",
-        "setup/github-apps",
-        "setup/review-sync",
-        "setup/event-channel",
-        "setup/github-projects",
-      ],
+      items: ["ai/setup", "ai/system"],
     },
-    {
-      type: "category",
-      label: "Reference",
-      collapsed: false,
-      items: [
-        "reference/cli",
-        "reference/config",
-        "reference/credentials",
-        "reference/plugin",
-      ],
-    },
-    {
-      type: "category",
-      label: "In depth",
-      collapsed: true,
-      items: [
-        "in-depth/board-model",
-        "in-depth/lifecycle",
-        "in-depth/dispatcher-loop",
-        "in-depth/workers",
-        "in-depth/claims",
-        "in-depth/identities",
-        "in-depth/event-channel",
-        "in-depth/review-sync",
-        "in-depth/worktrees",
-      ],
-    },
-    "development",
   ],
 }
 

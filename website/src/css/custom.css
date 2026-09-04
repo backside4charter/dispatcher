@@ -308,10 +308,6 @@ svg .arr.muted { fill: var(--muted); }
 .pop .close { position: absolute; top: 0.45rem; right: 0.5rem; border: 0; background: none; color: var(--muted); font-size: 1.2rem; line-height: 1; cursor: pointer; padding: 0.15rem 0.4rem; border-radius: 4px; }
 .pop .close:hover { color: var(--ink); background: var(--code-bg); }
 
-/* Mermaid, for the diagrams not yet redrawn */
-.docusaurus-mermaid-container { margin: 1.5rem 0 2rem; overflow-x: auto; }
-.docusaurus-mermaid-container svg { max-width: 100%; height: auto; }
-
 @media (prefers-reduced-motion: reduce) {
   .pop, .dim, .diagram svg > *, .diagram svg .hot, .diagram svg .hot .node { transition: none; }
 }

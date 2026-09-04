@@ -1,0 +1,16 @@
+# dispatcher
+
+> An autonomous backlog dispatcher for agent-driven development: a long-running Claude Code session works a Linear (or GitHub Projects) board, handing each task to a developer agent, each finished pull request to a reviewer agent, and each conflicting PR to a cleaner agent; the owner orders the backlog, answers questions, and merges.
+
+Pages written for AI agents (raw Markdown):
+
+- [Setup guide](https://raw.githubusercontent.com/backside4charter/dispatcher/main/website/docs/ai/setup.md): install and configure the dispatcher in a repository, phase by phase, with the commands to run and what to ask the human for.
+- [System breakdown](https://raw.githubusercontent.com/backside4charter/dispatcher/main/website/docs/ai/system.md): the complete technical description - board model, task lifecycle, the loop, workers, claims, identities, event channel, review sync, worktrees, CLI, configuration, credentials, platform setup facts, development.
+
+Human-facing pages:
+
+- [How it works](https://backside4charter.github.io/dispatcher/concepts/how-it-works)
+- [The board](https://backside4charter.github.io/dispatcher/concepts/the-board)
+- [Get started](https://backside4charter.github.io/dispatcher/getting-started/get-started)
+
+Source: https://github.com/backside4charter/dispatcher
